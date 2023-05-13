@@ -94,8 +94,11 @@ executable HNS
 
   -- Other library packages from which modules are imported.
   build-depends:
-    , base        ^>=4.16.4.0
+    , base               ^>=4.16.4.0
+    , base16-bytestring
     , bytestring
+    , network
+    , random
 
   -- Directories containing source files.
   hs-source-dirs:   app
