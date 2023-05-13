@@ -6,9 +6,8 @@ import Control.Arrow ((>>>))
 import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString qualified as B
 import Data.ByteString.Base16 qualified as B16
-import Data.ByteString.Builder (Builder, lazyByteString, toLazyByteString, word16BE, word8)
-import Data.ByteString.Lazy qualified as BS
-import Data.ByteString.Lazy.Char8 qualified as C8
+import Data.ByteString.Builder (Builder, byteString, toLazyByteString, word16BE, word8)
+import Data.ByteString.Char8 qualified as C8
 import Data.Word (Word16)
 import Network.Socket
   ( AddrInfo (addrAddress, addrFamily),
@@ -27,24 +26,24 @@ main = do
   adrr : _ <- getAddrInfo Nothing (Just "8.8.8.8") (Just "53")
   sock <- socket (addrFamily adrr) Datagram defaultProtocol
   connect sock (addrAddress adrr)
-  _ <- sendAll sock . BS.toStrict . toLazyByteString <$> buildQuery "www.example.com" typeA
+  _ <- sendAll sock . B.toStrict . toLazyByteString <$> buildQuery "www.example.com" typeA
   -- _checkDNSQuery sock -- Check sample query
   response <- recv sock 1024
-  (C8.putStrLn . C8.fromStrict . B16.encode) response
+  (C8.putStrLn . B16.encode) response
 
 data Header = Header
-  { hId :: Word16,
-    flags :: Word16,
-    numQuestions :: Word16,
-    numAnswers :: Word16,
-    numAuthorities :: Word16,
-    numAdditionals :: Word16
+  { hId :: !Word16,
+    flags :: !Word16,
+    numQuestions :: !Word16,
+    numAnswers :: !Word16,
+    numAuthorities :: !Word16,
+    numAdditionals :: !Word16
   }
 
 data Question = Question
-  { qname :: BS.ByteString,
-    qtype :: Word16,
-    qclass :: Word16
+  { qname :: B.ByteString,
+    qtype :: !Word16,
+    qclass :: !Word16
   }
 
 typeA :: Word16
@@ -68,7 +67,7 @@ header2Bytes h =
 -- "7777772e6578616d706c652e636f6d00010001"
 question2Bytes :: Question -> Builder
 question2Bytes q =
-  lazyByteString (qname q)
+  byteString (qname q)
     <> word16BE (qtype q)
     <> word16BE (qclass q)
 
@@ -76,8 +75,8 @@ question2Bytes q =
 -- "03777777076578616d706c6503636f6d00"
 encodeDNSName :: String -> Builder
 encodeDNSName =
-  let buildWord :: BS.ByteString -> Builder
-      buildWord w = (word8 . fromIntegral . BS.length) w <> lazyByteString w
+  let buildWord :: B.ByteString -> Builder
+      buildWord w = (word8 . fromIntegral . B.length) w <> byteString w
    in C8.pack >>> C8.split '.' >>> fmap buildWord >>> mconcat >>> (<> word8 0)
 
 -- >>> _debugBuilderOutput <$> buildQuery "www.example.com" typeA
@@ -88,11 +87,11 @@ buildQuery domainName recordType = do
   let name = encodeDNSName domainName
       recursionDesired = 0x0100 -- 1 << 8
       header = Header qId recursionDesired 1 0 0 0
-      question = Question (toLazyByteString name) recordType classIn
+      question = Question (B.toStrict . toLazyByteString $ name) recordType classIn
   pure $ header2Bytes header <> question2Bytes question
 
 _debugBuilderOutput :: Builder -> B.ByteString
-_debugBuilderOutput = B16.encode . BS.toStrict . toLazyByteString
+_debugBuilderOutput = B16.encode . B.toStrict . toLazyByteString
 
 _checkDNSQuery :: Socket -> IO ()
 _checkDNSQuery =
