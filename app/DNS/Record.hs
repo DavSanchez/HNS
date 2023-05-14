@@ -2,6 +2,7 @@
 
 module DNS.Record (DNSRecord, parseRecord) where
 
+import Control.Monad (replicateM)
 import DNS.Parser (decodeDNSName)
 import Data.ByteString qualified as B
 import Data.Void (Void)
@@ -26,5 +27,5 @@ parseRecord = do
   rclass <- M.word16be
   rttl <- M.word32be
   rdataLength <- M.word16be
-  rdata <- M.takeP Nothing (fromIntegral rdataLength)
+  rdata <- B.pack <$> replicateM (fromIntegral rdataLength) M.word8
   pure $ DNSRecord name rtype rclass rttl rdataLength rdata

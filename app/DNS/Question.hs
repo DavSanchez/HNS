@@ -2,7 +2,7 @@
 
 module DNS.Question (DNSQuestion (..), question2Bytes, parseQuestion) where
 
-import DNS.Parser (decodeDNSName)
+import DNS.Parser (decodeDNSNameSimple)
 import Data.ByteString qualified as B
 import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Builder (Builder, byteString, toLazyByteString, word16BE)
@@ -18,7 +18,7 @@ data DNSQuestion = DNSQuestion
   }
   deriving stock (Show)
 
--- >>> _debugBuilderOutput $ question2Bytes (Question "www.example.com" 1 1)
+-- >>> _debugBuilderOutput $ question2Bytes (DNSQuestion "www.example.com" 1 1)
 -- "7777772e6578616d706c652e636f6d00010001"
 question2Bytes :: DNSQuestion -> Builder
 question2Bytes q =
@@ -29,7 +29,7 @@ question2Bytes q =
 parseQuestion :: M.Parsec Void B.ByteString DNSQuestion
 parseQuestion =
   DNSQuestion
-    <$> decodeDNSName
+    <$> decodeDNSNameSimple
     <*> M.word16be
     <*> M.word16be
 
