@@ -4,7 +4,8 @@ module DNS.Question (DNSQuestion (..), question2Bytes, parseQuestion) where
 
 import DNS.Parser (decodeDNSName)
 import Data.ByteString qualified as B
-import Data.ByteString.Builder (Builder, byteString, word16BE)
+import Data.ByteString.Base16 qualified as B16
+import Data.ByteString.Builder (Builder, byteString, toLazyByteString, word16BE)
 import Data.Void (Void)
 import Data.Word (Word16)
 import Text.Megaparsec qualified as M
@@ -31,3 +32,6 @@ parseQuestion =
     <$> decodeDNSName
     <*> M.word16be
     <*> M.word16be
+
+_debugBuilderOutput :: Builder -> B.ByteString
+_debugBuilderOutput = B16.encode . B.toStrict . toLazyByteString

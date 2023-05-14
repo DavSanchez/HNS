@@ -3,7 +3,8 @@
 module DNS.Header (DNSHeader (..), parseHeader, header2Bytes) where
 
 import Data.ByteString qualified as B
-import Data.ByteString.Builder (Builder, word16BE)
+import Data.ByteString.Base16 qualified as B16
+import Data.ByteString.Builder (Builder, toLazyByteString, word16BE)
 import Data.Void (Void)
 import Data.Word (Word16)
 import Text.Megaparsec qualified as M
@@ -19,7 +20,7 @@ data DNSHeader = DNSHeader
   }
   deriving stock (Show)
 
--- >>> _debugBuilderOutput $  header2Bytes (Header 1 2 3 4 5 6)
+-- >>> _debugBuilderOutput $ header2Bytes (DNSHeader 1 2 3 4 5 6)
 -- "000100020003000400050006"
 header2Bytes :: DNSHeader -> Builder
 header2Bytes h =
@@ -30,7 +31,6 @@ header2Bytes h =
     <> word16BE (hnumAuthorities h)
     <> word16BE (hnumAdditionals h)
 
--- >>>
 parseHeader :: M.Parsec Void B.ByteString DNSHeader
 parseHeader =
   DNSHeader
@@ -40,3 +40,6 @@ parseHeader =
     <*> M.word16be
     <*> M.word16be
     <*> M.word16be
+
+_debugBuilderOutput :: Builder -> B.ByteString
+_debugBuilderOutput = B16.encode . B.toStrict . toLazyByteString
