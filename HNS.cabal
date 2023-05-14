@@ -101,10 +101,10 @@ executable HNS
 
   -- Other library packages from which modules are imported.
   build-depends:
-    , attoparsec
     , base               ^>=4.16.4.0
     , base16-bytestring
     , bytestring
+    , megaparsec
     , network
     , random
 

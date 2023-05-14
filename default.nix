@@ -1,5 +1,5 @@
-{ mkDerivation, attoparsec, base, base16-bytestring, bytestring
-, lib, network, random
+{ mkDerivation, base, base16-bytestring, bytestring, lib
+, megaparsec, network, random
 }:
 mkDerivation {
   pname = "HNS";
@@ -8,7 +8,7 @@ mkDerivation {
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = [
-    attoparsec base base16-bytestring bytestring network random
+    base base16-bytestring bytestring megaparsec network random
   ];
   license = lib.licenses.gpl3Only;
   mainProgram = "HNS";

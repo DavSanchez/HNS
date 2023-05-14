@@ -6,7 +6,9 @@ import Control.Monad (replicateM)
 import DNS.Header (DNSHeader (..), parseHeader)
 import DNS.Question (DNSQuestion, parseQuestion)
 import DNS.Record (DNSRecord, parseRecord)
-import Data.Attoparsec.ByteString qualified as A
+import Data.ByteString qualified as B
+import Data.Void (Void)
+import Text.Megaparsec qualified as M
 
 data DNSPacket = DNSPacket
   { pheader :: DNSHeader,
@@ -17,7 +19,7 @@ data DNSPacket = DNSPacket
   }
   deriving stock (Show)
 
-parseDNSPacket :: A.Parser DNSPacket
+parseDNSPacket :: M.Parsec Void B.ByteString DNSPacket
 parseDNSPacket = do
   header <- parseHeader
   questions <- replicateM (fromIntegral $ hnumQuestions header) parseQuestion

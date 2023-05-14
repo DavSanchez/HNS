@@ -2,10 +2,12 @@
 
 module DNS.Header (DNSHeader (..), parseHeader, header2Bytes) where
 
-import DNS.Parser (getWord16)
-import Data.Attoparsec.ByteString qualified as A
+import Data.ByteString qualified as B
 import Data.ByteString.Builder (Builder, word16BE)
+import Data.Void (Void)
 import Data.Word (Word16)
+import Text.Megaparsec qualified as M
+import Text.Megaparsec.Byte.Binary qualified as M
 
 data DNSHeader = DNSHeader
   { hid :: !Word16,
@@ -29,12 +31,12 @@ header2Bytes h =
     <> word16BE (hnumAdditionals h)
 
 -- >>>
-parseHeader :: A.Parser DNSHeader
+parseHeader :: M.Parsec Void B.ByteString DNSHeader
 parseHeader =
   DNSHeader
-    <$> getWord16
-    <*> getWord16
-    <*> getWord16
-    <*> getWord16
-    <*> getWord16
-    <*> getWord16
+    <$> M.word16be
+    <*> M.word16be
+    <*> M.word16be
+    <*> M.word16be
+    <*> M.word16be
+    <*> M.word16be
