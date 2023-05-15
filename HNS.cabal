@@ -90,6 +90,8 @@ executable HNS
   other-modules:
     Debug
     DNS.Header
+    DNS.IP4
+    DNS.Lookup
     DNS.Packet
     DNS.Parser
     DNS.Query
@@ -107,6 +109,7 @@ executable HNS
     , megaparsec
     , network
     , random
+    , text
 
   -- Directories containing source files.
   hs-source-dirs:   app

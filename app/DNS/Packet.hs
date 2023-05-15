@@ -1,13 +1,13 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module DNS.Packet (DNSPacket, parseDNSPacket) where
+module DNS.Packet (DNSPacket, parseDNSPacket, getData) where
 
 import Control.Monad (replicateM)
 import DNS.Header (DNSHeader (..), parseHeader)
+import DNS.Parser (DNSParser)
 import DNS.Question (DNSQuestion, parseQuestion)
-import DNS.Record (DNSRecord, parseRecord)
+import DNS.Record (DNSRecord (..), parseRecord)
 import Data.ByteString qualified as B
-import Data.Void (Void)
 import Text.Megaparsec qualified as M
 
 data DNSPacket = DNSPacket
@@ -19,11 +19,16 @@ data DNSPacket = DNSPacket
   }
   deriving stock (Show)
 
-parseDNSPacket :: M.Parsec Void B.ByteString DNSPacket
+parseDNSPacket :: DNSParser DNSPacket
 parseDNSPacket = do
+  fullInput <- M.getInput
+  let parseRecord' = parseRecord fullInput
   header <- parseHeader
   questions <- replicateM (fromIntegral $ hnumQuestions header) parseQuestion
-  answers <- replicateM (fromIntegral $ hnumAnswers header) parseRecord
-  authorities <- replicateM (fromIntegral $ hnumAuthorities header) parseRecord
-  additionals <- replicateM (fromIntegral $ hnumAdditionals header) parseRecord
+  answers <- replicateM (fromIntegral $ hnumAnswers header) parseRecord'
+  authorities <- replicateM (fromIntegral $ hnumAuthorities header) parseRecord'
+  additionals <- replicateM (fromIntegral $ hnumAdditionals header) parseRecord'
   pure $ DNSPacket header questions answers authorities additionals
+
+getData :: DNSPacket -> [B.ByteString]
+getData p = rdata <$> panswers p

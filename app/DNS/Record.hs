@@ -1,13 +1,11 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module DNS.Record (DNSRecord, parseRecord) where
+module DNS.Record (DNSRecord (..), parseRecord) where
 
 import Control.Monad (replicateM)
-import DNS.Parser (decodeDNSName)
+import DNS.Parser (DNSParser, decodeDNSName)
 import Data.ByteString qualified as B
-import Data.Void (Void)
 import Data.Word (Word16, Word32)
-import Text.Megaparsec qualified as M
 import Text.Megaparsec.Byte.Binary qualified as M
 
 data DNSRecord = DNSRecord
@@ -20,9 +18,9 @@ data DNSRecord = DNSRecord
   }
   deriving stock (Show)
 
-parseRecord :: M.Parsec Void B.ByteString DNSRecord
-parseRecord = do
-  name <- decodeDNSName
+parseRecord :: B.ByteString -> DNSParser DNSRecord
+parseRecord fullInput = do
+  name <- decodeDNSName fullInput
   rtype <- M.word16be
   rclass <- M.word16be
   rttl <- M.word32be

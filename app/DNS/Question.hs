@@ -2,13 +2,11 @@
 
 module DNS.Question (DNSQuestion (..), question2Bytes, parseQuestion) where
 
-import DNS.Parser (decodeDNSNameSimple)
+import DNS.Parser (DNSParser, decodeDNSNameSimple)
 import Data.ByteString qualified as B
 import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Builder (Builder, byteString, toLazyByteString, word16BE)
-import Data.Void (Void)
 import Data.Word (Word16)
-import Text.Megaparsec qualified as M
 import Text.Megaparsec.Byte.Binary qualified as M
 
 data DNSQuestion = DNSQuestion
@@ -26,7 +24,7 @@ question2Bytes q =
     <> word16BE (qtype q)
     <> word16BE (qclass q)
 
-parseQuestion :: M.Parsec Void B.ByteString DNSQuestion
+parseQuestion :: DNSParser DNSQuestion
 parseQuestion =
   DNSQuestion
     <$> decodeDNSNameSimple
