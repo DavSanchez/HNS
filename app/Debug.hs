@@ -56,7 +56,7 @@ _parseFullDNSPacket :: Either (M.ParseErrorBundle B.ByteString Void) DNSPacket
 _parseFullDNSPacket = M.parse parseDNSPacket "" _exampleResponse
 
 -- >>> _getData
--- Right "]\184\216\""
+-- Right ["]\184\216\""]
 _getData :: Either (M.ParseErrorBundle B.ByteString Void) [B.ByteString]
 _getData = getData <$> _parseFullDNSPacket
 
