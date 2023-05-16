@@ -42,11 +42,9 @@ decodeCompressedDNSName i l = do
   offset' <- fromIntegral <$> M.word8
   let bytes = ((fromIntegral l :: Word16) .&. 0b0011_1111) `shiftL` 8
       pointer = fromIntegral (bytes .|. offset')
-  currentPos <- M.getOffset
   currentInput <- M.getInput
   M.setInput i
   M.skipCount pointer M.word8
   name <- decodeDNSName i
   M.setInput currentInput
-  M.setOffset currentPos
   pure name
