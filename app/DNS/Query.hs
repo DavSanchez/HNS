@@ -4,7 +4,6 @@ import Control.Arrow ((>>>))
 import Control.Monad.IO.Class (MonadIO)
 import DNS.Header (DNSHeader (..), header2Bytes)
 import DNS.Question (DNSQuestion (..), question2Bytes)
-import Data.Bits (shiftL)
 import Data.ByteString qualified as B
 import Data.ByteString.Builder (Builder, byteString, toLazyByteString, word8)
 import Data.ByteString.Char8 qualified as C8
@@ -28,7 +27,7 @@ buildQuery :: (MonadIO m) => String -> Word16 -> m Builder
 buildQuery domainName recordType = do
   qId <- fst . genWord16 <$> initStdGen -- Random number
   let name = encodeDNSName domainName
-      recursionDesired = 1 `shiftL` 8
+      recursionDesired = 0x0 -- 1 `shiftL` 8
       header = DNSHeader qId recursionDesired 1 0 0 0
       question = DNSQuestion (B.toStrict . toLazyByteString $ name) recordType classIn
   pure $ header2Bytes header <> question2Bytes question
