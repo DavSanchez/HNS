@@ -97,6 +97,7 @@ executable HNS
     DNS.Query
     DNS.Question
     DNS.Record
+    DNS.Resolver
 
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:

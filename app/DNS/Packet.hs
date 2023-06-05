@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module DNS.Packet (DNSPacket, parseDNSPacket, getData) where
+module DNS.Packet (DNSPacket (..), parseDNSPacket, getData) where
 
 import Control.Monad (replicateM)
 import DNS.Header (DNSHeader (..), parseHeader)

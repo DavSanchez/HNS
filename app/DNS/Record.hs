@@ -33,7 +33,7 @@ parseRecord fullInput = do
     _ -> B.pack <$> replicateM (fromIntegral rdataLength) M.word8
   pure $ DNSRecord name rtype rclass rttl rdataLength rdata
 
--- >>> ip2ByteString [0x11, 0x02, 0x03, 0x04]
+-- >>> ip2ByteString [0x0, 0x02, 0x03, 0x04]
 -- "17.2.3.4"
 ip2ByteString :: [Word8] -> C8.ByteString
 ip2ByteString =

@@ -3,12 +3,15 @@
 module Debug where
 
 import DNS.Header (DNSHeader, parseHeader)
-import DNS.Packet (DNSPacket, getData, parseDNSPacket)
+import DNS.Packet (DNSPacket (..), getData, parseDNSPacket)
+import DNS.Parser (DNSParseError)
 import DNS.Question (DNSQuestion, parseQuestion)
 import DNS.Record (DNSRecord, parseRecord)
 import Data.ByteString qualified as B
 import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Builder (Builder, toLazyByteString)
+import Data.Text qualified as T
+import Data.Text.IO qualified as T
 import Data.Void (Void)
 import Network.Socket (Socket)
 import Network.Socket.ByteString (sendAll)
@@ -67,3 +70,15 @@ parseDNSResponse = do
   question <- parseQuestion
   record <- parseRecord allInput
   pure (header, question, record)
+
+_getAuthorities :: Either DNSParseError DNSPacket -> Either DNSParseError [DNSRecord]
+_getAuthorities packet = packet >>= Right <$> pauthorities
+
+_getAnswers :: Either DNSParseError DNSPacket -> Either DNSParseError [DNSRecord]
+_getAnswers packet = packet >>= Right <$> panswers
+
+_getAdditionals :: Either DNSParseError DNSPacket -> Either DNSParseError [DNSRecord]
+_getAdditionals packet = packet >>= Right <$> padditionals
+
+_printQueryResult :: Either DNSParseError DNSPacket -> IO ()
+_printQueryResult = T.putStrLn . T.pack . show

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DNS.Parser (decodeDNSName, decodeDNSNameSimple, DNSParser, DNSParseResult) where
+module DNS.Parser (decodeDNSName, decodeDNSNameSimple, DNSParser, DNSParseError, DNSParseResult) where
 
 import Control.Monad (replicateM)
 import Data.Bits (Bits ((.&.), (.|.)), shiftL)
@@ -12,7 +12,9 @@ import Text.Megaparsec.Byte.Binary qualified as M
 
 type DNSParser a = M.Parsec Void B.ByteString a
 
-type DNSParseResult a = Either (M.ParseErrorBundle B.ByteString Void) a
+type DNSParseError = M.ParseErrorBundle B.ByteString Void
+
+type DNSParseResult a = Either DNSParseError a
 
 decodeDNSNameSimple :: DNSParser B.ByteString
 decodeDNSNameSimple = do
